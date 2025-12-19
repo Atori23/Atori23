@@ -483,25 +483,66 @@
 
     <!-- JavaScript -->
     <script>
-            // 背景图片幻灯片
-            const bgImages = document.querySelectorAll('.bg-image');
-            let currentImageIndex = 0;
+        // 背景图片幻灯片
+        const bgImages = document.querySelectorAll('.bg-image');
+        let currentImageIndex = 0;
 
-            function rotateBackground() {
-            // 移除所有图片的active类
-                bgImages.forEach(img => img.classList.remove('active'));
-                
-            // 增加索引，如果超出范围则重置为0
-                currentImageIndex = (currentImageIndex + 1) % bgImages.length;
-                
-            // 为当前图片添加active类
-                bgImages[currentImageIndex].classList.add('active');
+        // 预加载函数
+        function preloadImage(url) {
+            const img = new Image();
+            img.src = url;
+        }
+
+        // 提前预加载下一张图片
+        function preloadNextImage() {
+            const nextIndex = (currentImageIndex + 1) % bgImages.length;
+            const nextImageUrl = getComputedStyle(bgImages[nextIndex]).backgroundImage;
+            // 提取 url 中的图片路径
+            const urlMatch = nextImageUrl.match(/url\(["']?(.*?)["']?\)/);
+            if (urlMatch && urlMatch[1]) {
+                preloadImage(urlMatch[1]);
             }
+        }
 
-            // 每5秒切换一次背景图片
-            setInterval(rotateBackground, 5000);
+        function rotateBackground() {
+            // 移除所有图片的active类
+            bgImages.forEach(img => img.classList.remove('active'));
+            
+            // 增加索引，如果超出范围则重置为0
+            currentImageIndex = (currentImageIndex + 1) % bgImages.length;
+            
+            // 为当前图片添加active类
+            bgImages[currentImageIndex].classList.add('active');
+            
+            // 预加载下一张图片
+            preloadNextImage();
+        }
+
+        // 页面加载完成后预加载下一张图片
+        setTimeout(preloadNextImage, 1000);
+
+        // 每5秒切换一次背景图片
+        setInterval(rotateBackground, 5000);
         // 深色模式切换
         document.addEventListener('DOMContentLoaded', function() {
+            // 背景图片预加载
+            const backgroundImages = [
+                'mount06.jpg',
+                'moun01.jpg',
+                'mount02.jpg',
+                'mount03.jpg',
+                'mount04.jpg',
+                'mount05.jpg',
+                'mount07.jpg'
+            ];
+
+            // 预加载所有背景图片
+            backgroundImages.forEach(image => {
+                const img = new Image();
+                img.src = image;
+            });
+
+            // 深色模式切换按钮
             const themeToggle = document.getElementById('theme-toggle');
             const htmlElement = document.documentElement;
             
